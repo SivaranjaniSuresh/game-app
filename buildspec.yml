@@ -1,0 +1,35 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_REGION: "us-east-1"
+    REACT_APP_API_SERVICE_URL: "http://localhost:5004"
+
+phases:
+  install:
+    commands:
+      - echo "Installing Docker 18..."
+      - curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-18.09.9.tgz -o docker.tgz
+      - tar xzvf docker.tgz
+      - mv docker/* /usr/bin/
+      - dockerd & # Start the Docker daemon in the background
+      - while(! docker stats --no-stream ); do echo "Waiting for Docker to start..."; sleep 1; done
+  pre_build:
+    commands:
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+      - echo "Logging in to Amazon ECR..."
+  build:
+    commands:
+      - echo "Building dev images..."
+      - docker-compose up -d --build
+      - echo "Building prod images..."
+      - docker build --no-cache -f be/Dockerfile -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/twtr-be:prod ./be
+      - docker build --no-cache -f fe/Dockerfile -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/twtr-fe:prod --build-arg REACT_APP_API_SERVICE_URL=$REACT_APP_API_SERVICE_URL ./fe
+
+  post_build:
+    commands:
+      - echo "Listing Docker images..."
+      - docker images
+      - echo "Pushing prod images to ECR..."
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/twtr-be:prod
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/twtr-fe:prod
