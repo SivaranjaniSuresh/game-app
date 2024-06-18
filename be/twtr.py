@@ -31,8 +31,9 @@ import jwt
 g = dict()
 
 # mongo
-mongo_client = MongoClient('mongodb://localhost:27017/')
-#mongo_client = MongoClient("mongodb+srv://admin:admin@tweets.8ugzv.mongodb.net/tweets?retryWrites=true&w=majority")
+mongo_client = MongoClient('mongodb+srv://admin:admin@tweets.8ugzv.mongodb.net/tweets?retryWrites=true&w=majority')
+
+
 class MyMongo(object):
     def __init__(self, db_name):
         self.db_name = db_name
@@ -61,7 +62,7 @@ tweets = dict()
 def set_env_var():
     global g
     if 'database_url' not in g:
-        g['database_url'] = os.environ.get("DATABASE_URL", 'mongodb://localhost:27017/')
+        g['database_url'] = os.environ.get("DATABASE_URL")
     if 'secret_key' not in g:
         g['secret_key'] = os.environ.get("SECRET_KEY", "my_precious_1869")
     if 'bcrypt_log_rounds' not in g:
@@ -303,7 +304,7 @@ def atlas_connect():
     # });
 
     # Python
-    client = pymongo.MongoClient("mongodb+srv://admin:<password>@tweets.8ugzv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    clent = pymongo.MongoClient("mongodb+srv://admin:admin@tweets.8ugzv.mongodb.net/tweets?retryWrites=true&w=majority")
     db = client.test
 
 

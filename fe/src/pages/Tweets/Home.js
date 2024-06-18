@@ -1,39 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { ScrollView, StyleSheet, ActivityIndicator } from "react-native";
+import React, { useEffect } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet } from "react-native";
 import TweetList from "./TweetList";
 //import axios from 'axios';
 
 const THome = () => {
   const [tweets, setTweets] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);   
-  
+  const [loading, setLoading] = React.useState(true);
+
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch("http://localhost:5000/tweets-results");
+      // const res = await fetch("http://localhost:5004/tweets-results");
       //const res = await fetch(`${process.env.REACT_APP_BE_NETWORK}:${process.env.REACT_APP_BE_PORT}/tweets-results`);
-      //const res = await fetch(`${process.env.REACT_APP_API_SERVICE_URL}/tweets-results`);
+      const res = await fetch(`${process.env.REACT_APP_API_SERVICE_URL}/tweets-results`);
       //const res = await fetch(`tweets-results`);
       const { results } = await res.json();
       console.log(results);
       setTweets([...results]);
-	    setLoading(false);
+      setLoading(false);
     };
- 
+
     console.log("Home.js: fetching from " + `${process.env.REACT_APP_API_SERVICE_URL}/tweets-results`)
     fetchData();
   }, []);
 
   return (
     <ScrollView noSpacer={true} noScroll={true} style={styles.container}>
-	  {loading ? (
-	    <ActivityIndicator
-		  style={[styles.centering]}
-		  color="#ff8179"
-		  size="large"
-	    />
-	  ) : (
-	    <TweetList tweets={tweets} />
-	  )}
+      {loading ? (
+        <ActivityIndicator
+          style={[styles.centering]}
+          color="#ff8179"
+          size="large"
+        />
+      ) : (
+        <TweetList tweets={tweets} />
+      )}
     </ScrollView>
   );
 }

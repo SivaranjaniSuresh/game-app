@@ -1,1 +1,3 @@
-# game-app for CSYE7220 - DevOps
+# game-app
+
+ docker-compose build --no-cache --build-arg REACT_APP_API_SERVICE_URL="http://localhost:5004"
