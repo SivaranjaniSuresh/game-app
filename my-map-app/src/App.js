@@ -8,8 +8,9 @@ const App = () => {
   const [password, setPassword] = useState('');
   const [loggedIn, setLoggedIn] = useState(false);
   const [currentLocation, setCurrentLocation] = useState([0, 0]);
-  const [speed, setSpeed] = useState(0); // State to hold current speed
-  const [path, setPath] = useState([]); // State to hold path (list of locations)
+  const [speed, setSpeed] = useState(0);
+  const [path, setPath] = useState([]);
+  const [selectedLocation, setSelectedLocation] = useState(null);
 
   useEffect(() => {
     const fetchLocations = async () => {
@@ -17,7 +18,6 @@ const App = () => {
         const response = await axios.get('http://localhost:5000/get_locations');
         setLocations(response.data);
 
-        // Update current location if logged in
         if (loggedIn) {
           const userLocation = response.data[username];
           if (userLocation) {
@@ -51,22 +51,20 @@ const App = () => {
       if (response.data.status === 'success') {
         setLoggedIn(true);
 
-        // Watch position changes after login
         const watchId = navigator.geolocation.watchPosition(
           (position) => {
             const { latitude, longitude, speed } = position.coords;
             const location = [latitude, longitude];
-            handleUpdateLocation(location); // Update backend with current location
-            setCurrentLocation(location);   // Update frontend state with current location
-            setSpeed(speed);                // Update frontend state with current speed
-            setPath(prevPath => [...prevPath, location]); // Append current location to path
+            handleUpdateLocation(location);
+            setCurrentLocation(location);
+            setSpeed(speed);
+            setPath(prevPath => [...prevPath, location]);
           },
           (error) => {
             console.error("Error getting current position", error);
           }
         );
 
-        // Cleanup function to clear watchPosition when component unmounts or on logout
         return () => navigator.geolocation.clearWatch(watchId);
       } else {
         alert('Login failed!');
@@ -128,13 +126,31 @@ const App = () => {
             defaultZoom={11}
           >
             {Object.entries(locations).map(([user, loc]) => {
-              const [lat, lng] = JSON.parse(loc);
-              return (
-                <Marker key={user} width={50} anchor={[lat, lng]} />
-              );
+              try {
+                const [lat, lng] = JSON.parse(loc);
+                return (
+                  <Marker
+                    key={user}
+                    width={50}
+                    anchor={[lat, lng]}
+                    onClick={() => setSelectedLocation({ username: user, location: [lat, lng] })}
+                  />
+                );
+              } catch (e) {
+                console.error(`Error parsing location for user ${user}:`, loc, e);
+                return null;
+              }
             })}
-            <Marker width={50} anchor={currentLocation} />
+            <Marker width={50} anchor={currentLocation} onClick={() => setSelectedLocation({ username, location: currentLocation })} />
             <Polyline positions={path} />
+            {selectedLocation && (
+              <Overlay anchor={selectedLocation.location} offset={[120, 79]}>
+                <div style={{ background: 'white', padding: '5px', border: '1px solid black' }}>
+                  <strong>{selectedLocation.username}</strong><br />
+                  Lat: {selectedLocation.location[0].toFixed(4)}, Lng: {selectedLocation.location[1].toFixed(4)}
+                </div>
+              </Overlay>
+            )}
           </Map>
           <div>
             <strong>Current Speed:</strong> {speed} m/s
