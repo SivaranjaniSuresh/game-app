@@ -82,6 +82,44 @@ const App = () => {
     }
   };
 
+  const haversineDistance = ([lat1, lon1], [lat2, lon2]) => {
+    const toRad = (x) => (x * Math.PI) / 180;
+    const R = 6371;
+
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c;
+  };
+
+  const calculateDisplacements = () => {
+    const users = Object.entries(locations);
+    const distances = [];
+
+    for (let i = 0; i < users.length; i++) {
+      for (let j = i + 1; j < users.length; j++) {
+        const user1 = users[i];
+        const user2 = users[j];
+        const loc1 = JSON.parse(user1[1]);
+        const loc2 = JSON.parse(user2[1]);
+        const distance = haversineDistance(loc1, loc2);
+        distances.push({
+          users: [user1[0], user2[0]],
+          distance
+        });
+      }
+    }
+
+    return distances;
+  };
+
   const Polyline = ({ positions }) => {
     if (positions.length < 2) return null;
 
@@ -154,6 +192,16 @@ const App = () => {
           </Map>
           <div>
             <strong>Current Speed:</strong> {speed} m/s
+          </div>
+          <div>
+            <h3>Displacements</h3>
+            <ul>
+              {calculateDisplacements().map((dist, index) => (
+                <li key={index}>
+                  {dist.users[0]} to {dist.users[1]}: {dist.distance.toFixed(2)} km
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       )}
