@@ -5,7 +5,7 @@ This project is a full-stack location tracking application built using React for
 ## App Links
 
 - Video: 
-- PPT: 
+- PPT: https://northeastern-my.sharepoint.com/:p:/g/personal/patel_hinal_northeastern_edu/EcBRpXYYVpdOhVmJMsbP9WQBnzhUise8Bi1mNMVv0eoMJg?e=XHh7hO
 
 ## Features
 
