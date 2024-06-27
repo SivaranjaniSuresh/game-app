@@ -73,5 +73,5 @@ This project is a full-stack location tracking application built using React for
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
