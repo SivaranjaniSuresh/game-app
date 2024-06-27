@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Map, Marker, Overlay } from 'pigeon-maps';
 import axios from 'axios';
+import './App.css'; // Import the CSS file
 
 const App = () => {
   const [locations, setLocations] = useState({});
@@ -12,6 +13,7 @@ const App = () => {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [items, setItems] = useState([]);
   const [distances, setDistances] = useState({});
+  const [collectedItemsCount, setCollectedItemsCount] = useState({});
 
   useEffect(() => {
     const fetchLocations = async () => {
@@ -76,6 +78,32 @@ const App = () => {
     }
   }, [loggedIn, locations]);
 
+  useEffect(() => {
+    const handleLoginSuccess = async (position) => {
+      try {
+        const { latitude, longitude } = position.coords;
+        const location = [latitude, longitude];
+        await axios.post('http://localhost:5000/update_location', { username, location });
+        setCurrentLocation(location);
+        setPath(prevPath => [...prevPath, location]);
+        checkItemCollection(location);
+      } catch (error) {
+        console.error("Error updating location", error);
+      }
+    };
+
+    if (loggedIn) {
+      const watchId = navigator.geolocation.watchPosition(
+        handleLoginSuccess,
+        (error) => {
+          console.error("Error getting current position", error);
+        }
+      );
+
+      return () => navigator.geolocation.clearWatch(watchId);
+    }
+  }, [loggedIn, username]);
+
   const handleRegister = async () => {
     try {
       await axios.post('http://localhost:5000/register', { username, password });
@@ -90,21 +118,6 @@ const App = () => {
       const response = await axios.post('http://localhost:5000/login', { username, password });
       if (response.data.status === 'success') {
         setLoggedIn(true);
-
-        const watchId = navigator.geolocation.watchPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
-            const location = [latitude, longitude];
-            handleUpdateLocation(location);
-            setCurrentLocation(location);
-            setPath(prevPath => [...prevPath, location]);
-          },
-          (error) => {
-            console.error("Error getting current position", error);
-          }
-        );
-
-        return () => navigator.geolocation.clearWatch(watchId);
       } else {
         alert('Login failed!');
       }
@@ -113,24 +126,19 @@ const App = () => {
     }
   };
 
-  const handleUpdateLocation = async (location) => {
-    try {
-      await axios.post('http://localhost:5000/update_location', { username, location });
-      checkItemCollection(location);
-    } catch (error) {
-      console.error("Error updating location", error);
-    }
-  };
-
   const checkItemCollection = (currentLocation) => {
     const collectedItems = items.filter(item => {
       const distance = haversineDistance(item.location, currentLocation);
-      return distance < 0.02; // 20 meters threshold for collecting items
+      return distance < 20; // 20 meters threshold for collecting items
     });
 
     if (collectedItems.length > 0) {
       alert(`You collected ${collectedItems.length} item(s)!`);
       setItems(prevItems => prevItems.filter(item => !collectedItems.includes(item)));
+
+      const newCount = { ...collectedItemsCount };
+      newCount[username] = (newCount[username] || 0) + collectedItems.length;
+      setCollectedItemsCount(newCount);
     }
   };
 
@@ -178,9 +186,10 @@ const App = () => {
   };
 
   return (
-    <div>
+    <div className="App">
       {!loggedIn ? (
-        <div>
+        <div className="login-register-container">
+          <h1 className="game-app-heading">Game-App</h1>
           <input type="text" placeholder="Username" onChange={(e) => setUsername(e.target.value)} />
           <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
           <button onClick={handleRegister}>Register</button>
@@ -189,11 +198,7 @@ const App = () => {
       ) : (
         <div>
           <h2>Map</h2>
-          <Map
-            height={600}
-            defaultCenter={currentLocation}
-            defaultZoom={11}
-          >
+          <Map height={600} defaultCenter={currentLocation} defaultZoom={11}>
             {Object.entries(locations).map(([user, loc]) => {
               try {
                 const [lat, lng] = JSON.parse(loc);
@@ -210,7 +215,7 @@ const App = () => {
                 return null;
               }
             })}
-            <Marker width={50} anchor={currentLocation} onClick={() => setSelectedLocation({ username, location: currentLocation })} />
+
             {items.map(item => (
               <Marker
                 key={item.id}
@@ -220,34 +225,49 @@ const App = () => {
                 onClick={() => {
                   alert(`You found an item at ${item.location[0].toFixed(4)}, ${item.location[1].toFixed(4)}!`);
                   setItems(prevItems => prevItems.filter(i => i.id !== item.id));
+                  const newCount = { ...collectedItemsCount };
+                  newCount[username] = (newCount[username] || 0) + 1;
+                  setCollectedItemsCount(newCount);
                 }}
               />
             ))}
-            <Polyline positions={path} />
 
-            {selectedLocation && selectedLocation.location && (
-              <Overlay anchor={selectedLocation.location} offset={[120, 79]}>
-                <div style={{ background: 'white', padding: '5px', border: '1px solid black' }}>
-                  <strong>{selectedLocation.username}</strong><br />
-                  Lat: {selectedLocation.location[0].toFixed(4)}, Lng: {selectedLocation.location[1].toFixed(4)}
-                </div>
-              </Overlay>
-            )}
-
-            <div>
-              <h3>Distances:</h3>
+            <div className="popup-section leaderboard-section">
+              <h3>Leaderboard - Items Collected</h3>
               <ul>
-                {Object.entries(distances).map(([key, distance]) => (
-                  <li key={key}>{`${key}: ${distance.toFixed(2)} meters`}</li>
-                ))}
-              </ul>
-            </div>
-
-          </Map>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default App;
+                {Object.entries(collectedItemsCount)
+                  .sort(([, countA], [, countB]) => countB - countA)
+                  .map(([user, count]) => (
+                    <li key={user}>{user}: {count} item(s)</li>
+                  ))}
+                </ul>
+                </div>
+      
+                  <div className="popup-section distances-section">
+                    <h3>Distances:</h3>
+                    <ul>
+                      {Object.entries(distances).map(([key, distance]) => (
+                        <li key={key}>{`${key}: ${distance.toFixed(2)} meters`}</li>
+                      ))}
+                    </ul>
+                  </div>
+      
+                  {selectedLocation && selectedLocation.location && (
+                    <Overlay anchor={selectedLocation.location} offset={[120, 79]}>
+                      <div className="selected-location-overlay">
+                        <strong>{selectedLocation.username}</strong><br />
+                        Lat: {selectedLocation.location[0].toFixed(4)}, Lng: {selectedLocation.location[1].toFixed(4)}
+                      </div>
+                    </Overlay>
+                  )}
+      
+                  <Polyline positions={path} />
+                </Map>
+              </div>
+            )}
+          </div>
+        );
+      };
+      
+      export default App;
+      

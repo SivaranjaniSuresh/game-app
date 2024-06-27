@@ -1,38 +1,134 @@
+/* Reset default margin and padding */
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif; /* Use a common font for better cross-platform consistency */
+}
+
+/* Main container for the entire app */
 .App {
   text-align: center;
 }
 
+/* Logo styling */
 .App-logo {
-  height: 40vmin;
+  height: 10vmin; /* Adjusted for better proportion */
   pointer-events: none;
 }
 
+/* Animation for the logo */
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+    animation: spin 2s linear infinite; /* Adjusted animation duration */
   }
 }
 
+/* Header styling */
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+  background-color: #282c34; /* Dark background */
+  min-height: 100vh; /* Full viewport height */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  font-size: 1.5rem; /* Adjusted font size */
+  color: white; /* White text color */
 }
 
+/* Link styling */
 .App-link {
-  color: #61dafb;
+  color: #61dafb; /* Light blue link color */
+  text-decoration: none; /* Remove underline */
+  transition: color 0.3s ease; /* Smooth transition on hover */
 }
 
-@keyframes App-logo-spin {
+.App-link:hover {
+  color: #40a9ff; /* Darker blue on hover */
+}
+
+/* Logo spin animation */
+@keyframes spin {
   from {
     transform: rotate(0deg);
   }
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Login and registration form container */
+.login-register-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: #f0f0f0;
+  padding: 20px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  margin: 20px;
+}
+
+/* Input fields styling */
+.login-register-container input {
+  width: 10%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Buttons styling */
+.login-register-container button {
+  width: 10%;
+  padding: 10px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 5px;
+  background-color: #61dafb;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login-register-container button:hover {
+  background-color: #40a9ff;
+}
+
+/* Common styling for pop-up sections like leaderboard and distances */
+.popup-section {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 10px;
+  border: 1px solid black;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 250px;
+}
+
+.popup-section h3 {
+  margin-top: 0;
+}
+
+.popup-section ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.popup-section li {
+  margin: 5px 0;
+}
+
+/* Specific positions for leaderboard and distances sections */
+.leaderboard-section {
+  top: 10px;
+  right: 10px;
+}
+
+.distances-section {
+  bottom: 10px;
+  left: 10px;
 }
