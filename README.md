@@ -1,4 +1,4 @@
-# Trasure Hunt App
+# Treasure Hunt App
 
 This project is a full-stack location tracking application built using React for the frontend and Flask for the backend. The app allows users to register, login, update their location, collect treasures, and view a leaderboard of collected treasures.
 
