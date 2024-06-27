@@ -40,7 +40,7 @@ This project is a full-stack location tracking application built using React for
 
 1. Navigate to the frontend directory:
     ```bash
-    cd frontend
+    cd my-map-app
     ```
 
 2. Install the dependencies:
@@ -57,7 +57,7 @@ This project is a full-stack location tracking application built using React for
 
 1. Navigate to the backend directory:
     ```bash
-    cd backend
+    cd be
     ```
 
 2. Create a virtual environment and activate it:
