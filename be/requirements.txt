@@ -1,0 +1,6 @@
+Flask==2.0.1
+Flask-Cors==3.0.10
+Flask-Bcrypt==0.7.1
+pymongo[srv]==3.12.0
+Werkzeug==2.0.1
+rejson==0.5.6
