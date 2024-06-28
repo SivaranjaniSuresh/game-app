@@ -80,14 +80,14 @@ def update_location():
     if isinstance(location, list):  # Convert location to JSON string if it's a list
         location = dumps(location)
 
-    # locations.update_one(
-    #     {'username': username},
-    #     {'$set': {'location': location}}, 
-    #     upsert=True
-    # )
+    locations.update_one(
+        {'username': username},
+        {'$set': {'location': location}}, 
+        upsert=True
+    )
 
     # print(f"Updating location for {username}: {location}")
-    rj.rpush('location_updates', json.dumps((username, location)))
+    # rj.rpush('location_updates', json.dumps((username, location)))
 
     user = users.find_one({'username': username})
     collected_items = user.get('collected_items', 0)  # Use get to handle missing field
@@ -102,22 +102,22 @@ def update_location():
     socketio.emit('update_leaderboard', leaderboard)  # Emit updated leaderboard to all clients
     return jsonify({'status': 'success', 'message': 'Location updated', 'leaderboard': leaderboard})
 
-# @app.route('/update_location', methods=['POST'])
-# def update_location():
-#     data = request.json
-#     username = data['username']
-#     location = data['location']
-#     print(f"Updating location for {username}: {location}")
-#     rj.rpush('location_updates', json.dumps((username, location)))
-#     return jsonify({'status': 'success', 'message': 'Location update queued'})
-
-# @app.route('/get_locations', methods=['GET'])
-# def get_locations():
-#     all_locations = {loc['username']: loc['location'] for loc in locations.find()}
-#     return jsonify(all_locations)
+@app.route('/update_location_redis', methods=['POST'])
+def update_location_redis():
+    data = request.json
+    username = data['username']
+    location = data['location']
+    print(f"Updating location for {username}: {location}")
+    rj.rpush('location_updates', json.dumps((username, location)))
+    return jsonify({'status': 'success', 'message': 'Location update queued'})
 
 @app.route('/get_locations', methods=['GET'])
 def get_locations():
+    all_locations = {loc['username']: loc['location'] for loc in locations.find()}
+    return jsonify(all_locations)
+
+@app.route('/get_locations_redis', methods=['GET'])
+def get_locations_redis():
     all_keys = rj.keys('*')
     all_locations = {key: rj.jsonget(key) for key in all_keys if key != 'location_updates'}
     return jsonify(all_locations)
@@ -164,4 +164,4 @@ def haversine_distance(loc1, loc2):
     return distance
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)
