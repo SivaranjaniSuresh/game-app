@@ -18,7 +18,7 @@ resource "aws_ecs_task_definition" "backend_td" {
 [
   {
     "name": "backend",
-    "image": "975050125209.dkr.ecr.us-west-2.amazonaws.com/gameapp-fe",
+    "image": "YOUR_AMAZON_ID.dkr.ecr.us-west-2.amazonaws.com/gameapp-fe",
     "essential": true,
     "portMappings": [
       {
@@ -39,7 +39,7 @@ resource "aws_ecs_task_definition" "frontend_td" {
 [
   {
     "name": "frontend",
-    "image": "975050125209.dkr.ecr.us-west-2.amazonaws.com/gameapp-fe",
+    "image": "YOUR_AMAZON_ID.dkr.ecr.us-west-2.amazonaws.com/gameapp-fe",
     "essential": true,
     "portMappings": [
       {

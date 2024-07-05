@@ -15,14 +15,14 @@ bcrypt = Bcrypt(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 # MongoDB connection
-client = MongoClient('mongodb+srv://admin:admin@cluster0.zckdq7s.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+client = MongoClient('<Insert String>')
 db = client['locationApp']
 users = db['users']
 locations = db['locations']
 items_collection = db['items']
 
 # Initialize RedisJSON connection
-rj = Client(host='redis-12258.c277.us-east-1-3.ec2.redns.redis-cloud.com', port=12258, decode_responses=True, password='HfrK5jYWcyYp9Mq5ce6iL6RMzs13K6cG')
+rj = Client(host='Insert String', port=12258, decode_responses=True, password='Insert String')
 
 def location_worker():
     print("Location worker started")
