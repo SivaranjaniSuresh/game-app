@@ -17,7 +17,7 @@ services:
       - 5004:5000
     environment:
       - FLASK_ENV=development
-      - DATABASE_URL=mongodb+srv://admin:admin@tweets.8ugzv.mongodb.net/tweets?retryWrites=true&w=majority
+      - DATABASE_URL=<Insert Connection String>
        - DATABASE_TEST_URL=mongodb://localhost:27017/
     networks:
       - backend

@@ -1,5 +1,5 @@
 ecs_cluster           = "gameapp-tf-cluster"
-ecs_key_pair_name     = "DevOps-Key1"
+ecs_key_pair_name     = "YOUR_ECS_KEY_PAIR_NAME"
 region                = "us-west-2"
 availability_zone     = "us-west-2a"
 test_vpc              = "twtr_vpc"
