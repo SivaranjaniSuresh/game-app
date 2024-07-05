@@ -8,6 +8,7 @@ from rejson import Client, Path
 import json
 import threading
 
+
 app = Flask(__name__)
 CORS(app)
 bcrypt = Bcrypt(app)
